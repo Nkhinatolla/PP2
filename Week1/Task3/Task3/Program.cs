@@ -8,10 +8,10 @@ namespace Task3
 {
     class Program
     {
-        private static void dublicate(string[] s, int n)
+        private static void dublicate(string[] s, int n) // Method dublicate with 2 parameters
         {
-            for (int i = 0; i < n; ++i)
-                Console.Write(s[i] + " " + s[i] + " ");
+            for (int i = 0; i < n; ++i)   // Same as c++
+                Console.Write(s[i] + " " + s[i] + " "); // Output
         }
         static void Main(string[] args)
         {
