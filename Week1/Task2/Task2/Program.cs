@@ -10,6 +10,10 @@ namespace Task2
     {
         static void Main(string[] args)
         {
+            Student student = new Student();
+            Student student2 = new Student("Nurbergen", 13, 2018);
+            student.access();
+            student2.access();
         }
     }
 }
