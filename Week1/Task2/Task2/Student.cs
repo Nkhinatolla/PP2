@@ -2,14 +2,14 @@
 
 public class Student
 {
-    public string name;
-    public int id;
-    public int year;
+    private string name;
+    private int id;
+    private int year;
     public Student(string name, int id, int year)
     {
         this.name = name;
         this.id = id;
-        this.year = year;
+        this.year = year + 1;
     }
     public Student()
     {
@@ -20,7 +20,7 @@ public class Student
         }
         this.name = reading[0];
         this.id = Convert.ToInt32(reading[1]);
-        this.year = Convert.ToInt32(reading[2]);
+        this.year = Convert.ToInt32(reading[2]) + 1;
     }
     public void access()
     {

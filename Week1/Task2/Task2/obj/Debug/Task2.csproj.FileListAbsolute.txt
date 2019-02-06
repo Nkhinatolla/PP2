@@ -4,3 +4,4 @@ C:\Users\Nurbergen\source\repos\Week1\Task2\Task2\bin\Debug\Task2.exe
 C:\Users\Nurbergen\source\repos\Week1\Task2\Task2\bin\Debug\Task2.pdb
 C:\Users\Nurbergen\source\repos\Week1\Task2\Task2\obj\Debug\Task2.exe
 C:\Users\Nurbergen\source\repos\Week1\Task2\Task2\obj\Debug\Task2.pdb
+C:\Users\Nurbergen\source\repos\Week1\Task2\Task2\obj\Debug\Task2.csprojAssemblyReference.cache
