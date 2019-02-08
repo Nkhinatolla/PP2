@@ -10,8 +10,14 @@ namespace Task3
     {
         private static void dublicate(string[] s, int n) // Method dublicate with 2 parameters
         {
-            for (int i = 0; i < n; ++i)   // Same as c++
-                Console.Write(s[i] + " " + s[i] + " "); // Output
+            string[] ss = new string[n * 2];
+            for (int i = 0, j = 0; i < n; ++i) 
+            {   
+                ss[j++] = s[i]; // Doubling
+                ss[j++] = s[i];
+            }
+            for (int i = 0; i < 2 * n; ++i)
+                Console.Write(ss[i] + " ");
         }
         static void Main(string[] args)
         {
