@@ -8,45 +8,27 @@ namespace Task3
 {
     class Program
     {
-        static System.Collections.Specialized.StringCollection log = new System.Collections.Specialized.StringCollection();
-        static void Go(DirectoryInfo root, string level)
+        static void rec(DirectoryInfo dir, string level)
         {
-            FileInfo[] files = null;
-            DirectoryInfo[] subDirs = null; 
-            try
+            Console.WriteLine(level + dir.Name);
+            level += "    ";
+            FileSystemInfo[] fs = dir.GetFileSystemInfos();
+            for (int i = 0; i < fs.Length; ++i)
             {
-                files = root.GetFiles("*.*");
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                log.Add(e.Message);
-            }
-            catch (DirectoryNotFoundException e)
-            {
-                Console.WriteLine(e.Message);
-            }
-            if (files != null)
-            {
-                subDirs = root.GetDirectories();
-                foreach (DirectoryInfo dirInfo in subDirs)
+                if (fs[i].GetType() == typeof(FileInfo))
                 {
-                    Console.WriteLine(level + dirInfo.Name);
-                    Go(dirInfo, level + "   ");
+                    Console.WriteLine(level + fs[i].Name);
                 }
-                foreach (FileInfo fi in files)
-                    Console.WriteLine(level + fi.Name);
+                else
+                {
+                    rec(fs[i] as DirectoryInfo, level);
+                }
             }
         }
         static void Main(string[] args)
         {
-            DirectoryInfo dirInfo = new DirectoryInfo(@"C:\Users\Nurbergen\source\repos\Week1\Task1");
-            Go(dirInfo, "");
-            if (log.Count > 0)
-            {
-                Console.WriteLine("Files with restricted access:");
-                foreach (string s in log)
-                    Console.WriteLine(s);
-            }
+            DirectoryInfo dir = new DirectoryInfo(@"C:\Users\Nurbergen\source\repos\Test\ex1\ex1");
+            rec(dir, "");
         }
     }
 }
