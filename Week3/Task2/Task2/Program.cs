@@ -55,6 +55,12 @@ namespace Example1
     }
     class Program
     {
+        static bool pathExists(string path, int mode) {
+            if ((mode == 1 && new DirectoryInfo(path).Exists) || (mode == 2 && new FileInfo(path).Exists))
+                return true;
+            else
+                return false;
+        }
         static void Main(string[] args)
         {
             DirectoryInfo dir = new DirectoryInfo(@"C:\Test");
@@ -69,7 +75,6 @@ namespace Example1
                 FileContent = dir.GetFiles(),
                 SelectedIndex = 0
             };
-            l.Draw();
             Stack<Layer> history = new Stack<Layer>();
             history.Push(l);
             bool esc = false;
@@ -77,8 +82,14 @@ namespace Example1
             while (!esc)
             {
                 if (curMode == FSIMode.DirectoryInfo)
+                {
                     history.Peek().Draw();
-                ConsoleKeyInfo consolekeyInfo = Console.ReadKey(); // spravo4nik
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    Console.WriteLine("Delete: Del | Rename: F4 | Back: Backspace | Exit: Esc");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                ConsoleKeyInfo consolekeyInfo = Console.ReadKey(); 
                 switch (consolekeyInfo.Key)
                 {
                     case ConsoleKey.UpArrow:
@@ -169,10 +180,72 @@ namespace Example1
                             history.Push(nl);
                         }
                         break;
+                    case ConsoleKey.F4:
+                        if (history.Peek().DirectoryContent.Length + history.Peek().FileContent.Length == 0)
+                            break;
+                        index = history.Peek().SelectedIndex;
+                        string name, fullname;
+                        int selectedMode;
+                        if (index < history.Peek().DirectoryContent.Length)
+                        {
+                            name = history.Peek().DirectoryContent[index].Name;
+                            fullname = history.Peek().DirectoryContent[index].FullName;
+                            selectedMode = 1;
+                        }
+                        else
+                        {
+                            name = history.Peek().FileContent[index - history.Peek().DirectoryContent.Length].Name;
+                            fullname = history.Peek().FileContent[index - history.Peek().DirectoryContent.Length].FullName;
+                            selectedMode = 2;
+                        }
+                        fullname = fullname.Remove(fullname.Length - name.Length);
+                        Console.WriteLine("Please enter the new name, to rename {0}:", name);
+                        Console.WriteLine(fullname);
+                        string newname = Console.ReadLine();
+                        while (newname.Length == 0 || pathExists(fullname + newname, selectedMode)) {
+                            Console.WriteLine("This directory was created, Enter the new one");
+                            newname = Console.ReadLine();
+                        }
+                        Console.WriteLine(selectedMode);
+                        if (selectedMode == 1)
+                        {
+                            new DirectoryInfo(history.Peek().DirectoryContent[index].FullName).MoveTo(fullname + newname);
+                        }
+                        else
+                            new FileInfo(history.Peek().FileContent[index - history.Peek().DirectoryContent.Length].FullName).MoveTo(fullname + newname);
+                        index = history.Peek().SelectedIndex;
+                        ind = index;
+                        numofcontent = history.Peek().DirectoryContent.Length + history.Peek().FileContent.Length - 1;
+                        history.Pop();
+                        if (history.Count == 0)
+                        {
+                            Layer nl = new Layer
+                            {
+                                DirectoryContent = dir.GetDirectories(),
+                                FileContent = dir.GetFiles(),
+                                SelectedIndex = Math.Min(Math.Max(numofcontent, 0), ind)
+                            };
+                            history.Push(nl);
+                        }
+                        else
+                        {
+                            index = history.Peek().SelectedIndex;
+                            DirectoryInfo di = history.Peek().DirectoryContent[index];
+                            Layer nl = new Layer
+                            {
+                                DirectoryContent = di.GetDirectories(),
+                                FileContent = di.GetFiles(),
+                                SelectedIndex = Math.Min(Math.Max(numofcontent, 0), ind)
+                            };
+                            history.Push(nl);
+                        }
+                        break;
                     default:
                         break;
                 }
+                
             }
         }
     }
 }
+;
