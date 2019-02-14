@@ -10,7 +10,7 @@ namespace Task3
     {
         private static void dublicate(string[] s, int n) // Method dublicate with 2 parameters
         {
-            string[] ss = new string[n * 2];
+            string[] ss = new string[n * 2]; // String array
             for (int i = 0, j = 0; i < n; ++i) 
             {   
                 ss[j++] = s[i]; // Doubling

@@ -10,10 +10,10 @@ namespace Task2
     {
         static void Main(string[] args)
         {
-            Student student = new Student();
-            Student student2 = new Student("Nurbergen", 13, 2018);
-            student.access();
-            student2.access();
+            Student student = new Student(); // Инициализируем данные с помощью конструктора: 0
+            Student student2 = new Student("Nurbergen", "18BD12345", 2018); // 3 параметрами
+            student.access(); // Метод возвращает данные
+            student2.access(); 
         }
     }
 }
