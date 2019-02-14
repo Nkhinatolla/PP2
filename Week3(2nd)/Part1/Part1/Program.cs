@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 namespace Part1 { 
-    enum FSIMode { // Есть две состояния: папки и файлы. Нумеруем для удобства 
+    enum FSIMode { // Есть два состояния: папки и файлы. Нумеруем для удобства 
         DirectoryInfo = 1,
         FileInfo = 2
     }
@@ -21,7 +21,7 @@ namespace Part1 {
                 fsi[i] = di[i];
             for (int i = 0; i < fi.Length; ++i)
                 fsi[i + di.Length] = fi[i];  
-            return fsi; // Возвращаем заMerganiy fsi
+            return fsi; // Возвращаем скомбинированный fsi
         }
         static void Main(string[] args) { 
             DirectoryInfo startPath = new DirectoryInfo(@"C:\Test"); // Объявляем начальные значения
@@ -29,21 +29,21 @@ namespace Part1 {
                 Console.WriteLine("Directory not exist");
                 return;
             }
-            Layer startLayer = new Layer { // Создаем класс Layer -> (контенты, выделенный контент и отрезок для вывода)
+            Layer startLayer = new Layer { // Создаем класс Layer -> (контенты, выделенный контент, отрезок для вывода и начальный индекс файла)
                 Content = Combine(startPath.GetDirectories(), startPath.GetFiles()),
                 SelectedIndex = 0,
                 Left = 0,
-                Right = 20, // Максимально 25 строк можно показывать
-                FileIndex = startPath.GetDirectories().Length // индекс начало файла
+                Right = 20, // Максимально можно показывать 25 строк 
+                FileIndex = startPath.GetDirectories().Length // начальный индекс файлов
             };
-            Stack<Layer> history = new Stack<Layer>(); // Стек для хранение Layer-ов 
+            Stack<Layer> history = new Stack<Layer>(); // Стек для хранения Layer-ов 
             history.Push(startLayer);
             bool esc = false;
-            FSIMode LayerMode = FSIMode.DirectoryInfo; // LayerMode - текущий состояние Layer-а
-            FSIMode SelectedMode = FSIMode.DirectoryInfo; // SelectedMode - остояние выделенного контента для удобства
+            FSIMode LayerMode = FSIMode.DirectoryInfo; // LayerMode - текущее состояние Layer-а
+            FSIMode SelectedMode = FSIMode.DirectoryInfo; // SelectedMode - состояние выделенного контента для удобства
             while (!esc) { 
                 Layer l = history.Peek(); // для удобства возьмем текущий Слой(Layer)
-                if (LayerMode == FSIMode.DirectoryInfo) { // Чтобы перерисовать Слой, текущие состояние должно быть папкой
+                if (LayerMode == FSIMode.DirectoryInfo) { // Чтобы обновлять Слой, текущее состояние должно быть папкой
                     if (l.Content.Length > 0)
                         SelectedMode = (l.Content[l.SelectedIndex].GetType() == typeof(DirectoryInfo)) ? FSIMode.DirectoryInfo : FSIMode.FileInfo; // Обновляем состояние SelectedMode-а
                     l.Draw(); // В классе Layer есть метод l.Draw();
@@ -70,28 +70,28 @@ namespace Part1 {
                             }
                         }
                         break;
-                    case ConsoleKey.Enter: // При нажатии Ентера, есть два вида действия.
-                        if (l.Content.Length == 0) // Если текущяя папка пусто, нету смысла нажимать на ЭНТЕР!
+                    case ConsoleKey.Enter: // При нажатии ENTER, есть два вида действия.
+                        if (l.Content.Length == 0) // Если текущяя папка пустая, нет смысла нажимать на ENTER!
                             break;
                         if (LayerMode == FSIMode.FileInfo)
                             break;
-                        if (SelectedMode == FSIMode.DirectoryInfo) { // Первое действие - когда выделенный контент это папка, добавим новый Слой в стек 
+                        if (SelectedMode == FSIMode.DirectoryInfo) { // Первое действие - когда выделенный контент это папка, добавляем новый Слой в стек 
                             DirectoryInfo dir = l.Content[l.SelectedIndex] as DirectoryInfo;
                             history.Push(new Layer {
                                 Content = Combine(dir.GetDirectories(), dir.GetFiles()),
                                 SelectedIndex = 0,
                                 Left = 0,
                                 Right = 20,
-                                FileIndex = dir.GetDirectories().Length // индекс начало файла
+                                FileIndex = dir.GetDirectories().Length // начальный индекс файлов
                             });
 
                         }
                         else { 
-                            LayerMode = FSIMode.FileInfo; // Меняем состояние на файл
+                            LayerMode = FSIMode.FileInfo; // Меняем состояние LayerMode на файл
                             using (FileStream fs = new FileStream(l.Content[l.SelectedIndex].FullName, FileMode.Open, FileAccess.Read)) { // будем читать содержимое файла
                                 using (StreamReader sr = new StreamReader(fs)) { 
-                                    Console.BackgroundColor = ConsoleColor.White; // Белый фон, черный шрифт
-                                    Console.ForegroundColor = ConsoleColor.Black;
+                                    Console.BackgroundColor = ConsoleColor.White; // Белый фон
+                                    Console.ForegroundColor = ConsoleColor.Black; // Черный шрифт
                                     Console.Clear();
                                     Console.WriteLine(sr.ReadToEnd());
                                 }
@@ -102,32 +102,33 @@ namespace Part1 {
                         esc = true;
                         break;
                     case ConsoleKey.Backspace:
-                        if (LayerMode == FSIMode.DirectoryInfo) { // Перед выходом нужно определить из чего выходим
-                            if (history.Count() > 1) // Граница чтобы не вылетить
+                        if (LayerMode == FSIMode.DirectoryInfo) { // Перед выходом определяем состояние LayerMode
+                            if (history.Count() > 1) // Граница чтобы не вылететь
                                 history.Pop(); // Удаление Слоя из стека
                         }
                         else
-                            LayerMode = FSIMode.DirectoryInfo; // Меняем обратно на папку
+                            LayerMode = FSIMode.DirectoryInfo; // При выходе из файла, меняем состояние на папку 
                         break;
                     case ConsoleKey.Delete:
-                        if (LayerMode == FSIMode.FileInfo || l.Content.Length == 0) // Ничего не делаем если находимся в файле или папка пуста
+                        if (LayerMode == FSIMode.FileInfo || l.Content.Length == 0) // Ничего не делаем, если находимся в файле или папка пуста
                             break;
-                        if (SelectedMode == FSIMode.FileInfo) // Перед удалением определим тип контента
+                        if (SelectedMode == FSIMode.FileInfo) // Перед удалением определяем тип контента
                             (l.Content[l.SelectedIndex] as FileInfo).Delete();
                         else  
-                            (l.Content[l.SelectedIndex] as DirectoryInfo).Delete(true); // Если папка не пуста, true - поможет удалить
-                            history.Pop(); // удаляем текущий Слой и перезаписоваем.
-                        if (history.Count == 0) { // Если это первый Слой, берем Слой startPath, и из него записоваем
+                            (l.Content[l.SelectedIndex] as DirectoryInfo).Delete(true); // Truе удаляет папку с файлами
+                        history.Pop(); // удаляем текущий Слой и обновляем
+                        if (history.Count == 0) { // Если это первый Слой, берем Слой startPath, и из него записываем
+                            startPath = new DirectoryInfo(@"C:\Test");
                             history.Push( new Layer {
                                     Content = Combine(startPath.GetDirectories(), startPath.GetFiles()),
                                     SelectedIndex = Math.Min(l.SelectedIndex, l.Content.Length - 2),
-                                    Left = l.Left,
+                                    Left = l.Left,  
                                     Right = l.Right,
                                     FileIndex = startPath.GetDirectories().Length
                             });
                         }
                         else {
-                            DirectoryInfo dir = history.Peek().Content[l.SelectedIndex] as DirectoryInfo; // Или преведущий Слой
+                            DirectoryInfo dir =  new DirectoryInfo(history.Peek().Content[history.Peek().SelectedIndex].FullName); // Или предыдущий Слой
                             history.Push(new Layer {
                                 Content = Combine(dir.GetDirectories(), dir.GetFiles()),
                                 SelectedIndex = Math.Min(l.SelectedIndex, l.Content.Length - 2),
@@ -142,14 +143,14 @@ namespace Part1 {
                             break;
                         string fullname = l.Content[l.SelectedIndex].FullName; // полный путь
                         string name = l.Content[l.SelectedIndex].Name; // имя файла
-                        string path = fullname.Remove(fullname.Length - name.Length); // путь без имя
+                        string path = fullname.Remove(fullname.Length - name.Length); // путь без имени
                         Console.WriteLine("Please enter the new name, to rename {0}:", name); // новое имя
                         string newname = Console.ReadLine(); 
                         while (newname.Length == 0 || pathExists(path + newname, SelectedMode)) { // проверка наличия пути
                             Console.WriteLine("This directory was created, Enter the new one");
                             newname = Console.ReadLine();
                         }
-                        if (SelectedMode == FSIMode.DirectoryInfo) // Через Move заменяем
+                        if (SelectedMode == FSIMode.DirectoryInfo) // Заменяем с помощью Move
                             new DirectoryInfo(fullname).MoveTo(path + newname);
                         else
                             new FileInfo(fullname).MoveTo(path + newname);
