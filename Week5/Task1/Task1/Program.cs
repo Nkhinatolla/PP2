@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Xml.Serialization;
+using System.IO;
 namespace Task1
 {
-    class ComplexNumber
+    [Serializable]
+    public class ComplexNumber
     {
-        double a, b;
-        //double i;
-       public ComplexNumber(double _re, double _im)
+        public double a, b;
+        public ComplexNumber()
+        {
+
+        }
+        public ComplexNumber(double _re, double _im)
         {
             a = _re;
             b = _im;
-        //    i = Math.Sqrt(-1);
         }
         public static ComplexNumber operator +(ComplexNumber num1, ComplexNumber num2)
         {
@@ -49,10 +53,27 @@ namespace Task1
     {
         static void Main(string[] args)
         {
-            ComplexNumber A = new ComplexNumber(3, 4);
-            ComplexNumber B = new ComplexNumber(8, -2);
-            ComplexNumber C = (A / B);
+            ComplexNumber A = new ComplexNumber(5, 4);
+            ComplexNumber B = new ComplexNumber(8, 3);
+            ComplexNumber C = (A * B);
             C.info();
+            //Ser(C);
+            ComplexNumber D = Deser();
+            D.info();
+        }
+        static void Ser(ComplexNumber c) 
+        {
+            FileStream fs = new FileStream("ComplexNumber", FileMode.Create, FileAccess.Write);
+            XmlSerializer xs = new XmlSerializer(typeof(ComplexNumber));
+            xs.Serialize(fs, c);
+            fs.Close();
+        }
+        static ComplexNumber Deser()
+        {
+            FileStream fs = new FileStream("ComplexNumber", FileMode.Open, FileAccess.Read);
+            XmlSerializer xs = new XmlSerializer(typeof(ComplexNumber));
+            return xs.Deserialize(fs) as ComplexNumber;
+
         }
     }
 }
