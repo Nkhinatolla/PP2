@@ -16,9 +16,9 @@ namespace Snake
         public static Wall b = new Wall('#');
         public static Food f = new Food('@', new object[]{w, b});
         public int point = 0;
-        public int level = 0;
-        private int speed = 1;
-        private int[] levels = { 10, 50, 100, 200};
+        public int level = 1;
+        private int speed = 150;
+        private int[] levels = { 10, 50, 150, 500, 1000, 10000};
         public string username;
         Timer timer = new Timer();
         //Timer timer2 = new Timer();
@@ -97,7 +97,7 @@ namespace Snake
             CheckWall();
             CheckBody();
             CheckFood();
-            timer.Interval = 100 / speed;
+            timer.Interval = speed;
             comment();
         }
         void CheckBody()
@@ -117,17 +117,16 @@ namespace Snake
         {
             if (w.CheckCollision(f.body[0]))
             {
-                point += speed * 2;
-                speed++;
+                point += level * 10;
                 w.Eat(f.body[0]);
                 if (point >= levels[level])
                 {
+                    speed -= 20;
                     level++;
                     b.LoadLevel(level);
                     Console.BackgroundColor = ConsoleColor.Gray;
                     b.Draw();
                     Console.BackgroundColor = ConsoleColor.Black;
-                    speed = 1;
                 }
                 f.Generate(new object[] { w, b });
                 Console.ForegroundColor = ConsoleColor.Red;
