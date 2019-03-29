@@ -50,7 +50,6 @@ namespace Task1
         static void Main(string[] args)
         {
             Employee x = new Employee { N = "Alex", I = "18BD", S = 10000};
-            int t = x.S + x.S;
             Ser(x);
             Deser(x);
         }
